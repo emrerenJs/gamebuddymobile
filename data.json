@@ -1,0 +1,8 @@
+[
+    { "online": 15023, "url": "/assets/games/valorant.png", "fully": 54, "backgroundColor": "rgba(55,0,0,0.55)", "name": "VALORANT", "backImage": "/assets/games/valoBack.png" },
+    { "online": 7203, "url": "/assets/games/brawlhalla.png", "fully": 24, "backgroundColor": "rgba(0,0,150,0.55)", "name": "BRAWLHALA", "backImage":"/assets/games/brawlBack.jpg" },
+    { "online": 65752, "url": "/assets/games/lol.jpg", "fully": 74, "backgroundColor": "rgba(0, 0, 0, 0.55)", "name": "League Of Legends", "backImage":"/assets/games/lolBack.jpg"},
+    { "online": 57258, "url": "/assets/games/cs.png", "fully": 84, "backgroundColor": "rgba(0,0,0,0.55)", "name": "Counter Strike GO",  "backImage":"/assets/games/csBack.png"},
+    { "online": 235, "url": "/assets/games/amongUs.png", "fully": 44, "backgroundColor": "rgba(135, 55, 235,0.55)", "name": "Among Us", "backImage":"/assets/games/amongUsBack.jpg"},
+    { "online": 235, "url": "/assets/games/amongUs.png", "fully": 44, "backgroundColor": "rgba(172, 148, 55, 0.55)", "name": "Among Us", "backImage":"/assets/games/amongUsBack.jpg"}
+]

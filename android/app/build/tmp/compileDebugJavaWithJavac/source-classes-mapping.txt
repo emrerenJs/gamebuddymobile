@@ -1,0 +1,14 @@
+com/ahmetullah/ReactNativeFlipper.java
+ com.ahmetullah.ReactNativeFlipper
+ com.ahmetullah.ReactNativeFlipper$1
+ com.ahmetullah.ReactNativeFlipper$2
+ com.ahmetullah.ReactNativeFlipper$2$1
+com/ahmetullah/BuildConfig.java
+ com.ahmetullah.BuildConfig
+com/ahmetullah/MainApplication.java
+ com.ahmetullah.MainApplication
+ com.ahmetullah.MainApplication$1
+com/ahmetullah/MainActivity.java
+ com.ahmetullah.MainActivity
+com/facebook/react/PackageList.java
+ com.facebook.react.PackageList
