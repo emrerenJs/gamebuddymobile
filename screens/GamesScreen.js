@@ -17,6 +17,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import * as Progress from 'react-native-progress';
 import axios from 'axios';
 import config from '../config.json';
+import Popup from '../assets/widgets/Popup';
 
 import images from '../assets/games/images';
 
@@ -36,7 +37,13 @@ export default class GamesScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            games:[]
+            games:[],
+            isModalVisible:false,
+            popup:{
+                type:'warning',
+                header:'Hata!',
+                message:'Bir şeyler ters gitti..'
+            }
         }
     }
 
@@ -71,14 +78,36 @@ export default class GamesScreen extends Component {
         })
     }
 
+    goToGame(item){
+        const stackAction = StackActions.push('AddGame',{game:item});
+        this.props.navigation.dispatch(stackAction);
+    }
+
+    comingSoon(){
+        const popup = this.state.popup;
+        popup.header = 'Yakında!';
+        popup.type = 'warning';
+        popup.message = 'Bu oyun yakında sistemimize eklenecektir..';
+        this.setState({
+            popup,
+            isModalVisible:true
+        })
+    }
+
+    changeModalVisible(){
+        this.setState({
+            isModalVisible:false
+        });
+    }
+
     _renderItem = ({ item, index }) => {
         let { itemStyle, itemText } = styles;
         const imageObj = images.find((e) => e.name == item.name);
         return (
-            <TouchableOpacity style={[itemStyle, { backgroundColor: item.backgroundColor }]} onPress={() => {
-                const stackAction = StackActions.push('AddGame');
-                this.props.navigation.dispatch(stackAction,{game:item});
-            }}>
+            <TouchableOpacity 
+                style={[itemStyle, { backgroundColor: item.backgroundColor }]} 
+                onPress={item.coming_soon ? this.comingSoon.bind(this) : this.goToGame.bind(this,item)}
+            >
                 <ImageBackground source={imageObj.backgroundImage} style={styles.imgBackground}></ImageBackground>
                 <Image style={{backgroundColor: item.backgroundColor, position:'absolute', width:'100%',height:'100%'}}></Image>
                 <Image source={imageObj.icon} style={styles.imgGameLogo}></Image>
@@ -126,13 +155,24 @@ export default class GamesScreen extends Component {
                 </LinearGradient>
 
 
-                <View style={container}>
+                <ImageBackground 
+                    source={require('../assets/intro.jpg')}
+                    style={container}>
                     <FlatList
                         data={this.state.games}
                         renderItem={this._renderItem}
                         keyExtractor={(item, index) => index.toString()}
                     />
-                </View>
+                </ImageBackground>
+                <Popup
+                    type={this.state.popup.type}
+                    header={this.state.popup.header}
+                    message={this.state.popup.message}
+                    noButtonOnClick={() => {this.changeModalVisible(false)}}
+                    okButtonOnClick={() => {this.changeModalVisible(false)}}
+                    yesButtonOnClick={()=>{}}
+                    isModalVisible={this.state.isModalVisible}
+                />
             </View>
             
 

@@ -9,8 +9,10 @@ import {
     Dimensions,
     Image,
     ImageBackground,
-    BackHandler
-
+    BackHandler,
+    Modal,
+    Pressable,
+    TouchableOpacity
 } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
@@ -33,27 +35,56 @@ const {width, height} = Dimensions.get('window');
 const CIRCLE_LENGHT = 1000;
 const R = CIRCLE_LENGHT / (2 * Math.PI);
 
+const WIDTH_M = Dimensions.get('window').width;
+const HEIGHT_M = Dimensions.get('window').height/3;
+
 export default class MyGamesScreen extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
             isModalVisible:false,
-            games:[]
+            games:[],
+            isAccountModalVisible:false,
+            accountsOfGame:[],
+            game:{}
         }
     }
 
-    backAction = () => {
+    backAction(){
         this.setState({
             isModalVisible:true
         });
         return true;
     }
 
+    showAccounts(selected){
+        //set state with game
+        this.setState({
+            accountsOfGame:selected.accounts,
+            isAccountModalVisible:true,
+            game:selected
+        });
+    }
+
+    closeAccountModal(){
+        this.setState({
+            isAccountModalVisible:false
+        })
+    }
+
+    goToAccountStatisticsPage(account){
+        //create a token first..
+        this.setState({
+            isAccountModalVisible:false
+        });
+        const game = this.state.game;
+        const stackAction = StackActions.push('StatisticsPage',{account,game});
+        this.props.navigation.dispatch(stackAction);
+    }
 
     async logout(){
         try{
-            //await AsyncStorage.removeItem('credentials');
             await AsyncStorage.removeItem('credentials');
             this.setState({
                 isModalVisible:false
@@ -67,7 +98,10 @@ export default class MyGamesScreen extends Component {
     }
 
     async componentDidMount(){
-        this.backHandler = BackHandler.addEventListener("hardwareBackPress",this.backAction);
+        this.props.navigation.addListener('beforeRemove', e => {
+            e.preventDefault();
+            this.backAction();
+        })
         const credentials = JSON.parse( await AsyncStorage.getItem('credentials'));
         axios.post(
             `${config.GAME_BUDDY_API_URL}/api/users/myGames`,
@@ -111,16 +145,36 @@ export default class MyGamesScreen extends Component {
             }
         })
     }
-
-    componentWillUnmount(){
-        this.backHandler.remove();
+    
+    _renderAccounts = ({item,index}) => {
+        return (
+            <TouchableOpacity 
+                onPress={()=>{this.goToAccountStatisticsPage(item)}}
+                style={{
+                    borderBottomColor:'rgba(0,0,0,.3)',
+                    borderBottomWidth:1,
+                    justifyContent:'center',
+                    alignItems:'center',
+                    padding:7
+                }}
+            >
+                <Text style={{color:'black',fontSize:18}}>
+                    {item.user_name}
+                </Text>
+            </TouchableOpacity>
+        )
     }
 
     _renderItem = ({ item, index }) => {
         let { itemStyle, itemText } = styles;
         const imageObj = images.find((e) => e.name == item.game.name);
         return (
-            <View style={[itemStyle, { backgroundColor: item.game.backgroundColor }]}>
+            <TouchableOpacity 
+                style={[itemStyle, { backgroundColor: item.game.backgroundColor }]}
+                onPress={()=>{
+                    this.showAccounts(item);
+                }}
+            >
                 <ImageBackground source={imageObj.backgroundImage} style={styles.imgBackground}></ImageBackground>
                 <Image style={{backgroundColor: item.game.backgroundColor, position:'absolute', width:'100%',height:'100%'}}></Image>
                 <Image source={imageObj.icon} style={styles.imgGameLogo}></Image>
@@ -146,9 +200,10 @@ export default class MyGamesScreen extends Component {
                         </View>
                     </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         )
     }
+
     render() {
         let { container, itemText } = styles
         return (
@@ -166,15 +221,15 @@ export default class MyGamesScreen extends Component {
                     
                     <Text style={{ color: 'rgba(255,255,255,0.75)',borderBottomWidth:5 ,borderBottomColor:'rgba(255,255,255,.15)',borderBottomLeftRadius:70, borderBottomRightRadius:50, fontSize:35 }}> OYUNLARIM</Text>
                 </LinearGradient>
-
-
-                <View style={container}>
+                <ImageBackground
+                    source={require('../assets/intro.jpg')}
+                    style={container}>
                     <FlatList
                         data={this.state.games}
                         renderItem={this._renderItem}
                         keyExtractor={(item, index) => index.toString()}
                     />
-                </View>
+                </ImageBackground>
                 <Popup
                     type="yes_no"
                     header="Uygulamadan Çıkılıyor.."
@@ -183,15 +238,86 @@ export default class MyGamesScreen extends Component {
                     yesButtonOnClick={() => this.logout()}
                     isModalVisible={this.state.isModalVisible}
                 />
-
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={this.state.isAccountModalVisible}
+                    onRequestClose={() => {
+                        this.closeAccountModal();
+                    }}
+                    >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{
+                                height:100,
+                                width:WIDTH_M/2,
+                                marginBottom:15
+                            }}>
+                                <FlatList
+                                    data={this.state.accountsOfGame}
+                                    renderItem={this._renderAccounts}
+                                    keyExtractor={(item, index) => index.toString()}
+                                    style={{borderTopColor:'rgba(0,0,0,.3)',borderTopWidth:1, borderBottomColor:'rgba(0,0,0,.3)',borderBottomWidth:1}}
+                                />
+                            </View>
+                            <Pressable
+                                style={[styles.button, styles.buttonClose]}
+                                onPress={() => this.closeAccountModal()}
+                            >
+                                <Text style={styles.textStyle}>Vazgeç</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
             </View>
-            
-
         )
     }
 }
 
 const styles = StyleSheet.create({
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        paddingVertical:25,
+        width:WIDTH_M/2,
+        flexDirection:'column'
+    },
+    button: {
+        borderRadius: 5,
+        padding: 10,
+        elevation: 2
+    },
+    buttonOpen: {
+        backgroundColor: "#F194FF",
+    },
+    buttonClose: {
+        backgroundColor: "#243B55",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center",
+        color:'black'
+    },
     linearGradient: {
         flex: 0.1,
         alignItems: 'center',
