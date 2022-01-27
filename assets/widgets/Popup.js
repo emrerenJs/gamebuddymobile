@@ -15,9 +15,7 @@ export default function Popup(props) {
         headerColor:'#fab52a',
         iconName:'information-circle'
     })
-
-    const [empty,setEmpty] = useState([])
-    
+        
     useEffect(()=>{
         if(props.type === 'danger'){
             setTemplate({
@@ -56,7 +54,7 @@ export default function Popup(props) {
         }else{
             //its an information message
         }
-    },empty);
+    },[props.type]);
 
     const renderButtons = () => {
         if(props.type == 'yes_no'){

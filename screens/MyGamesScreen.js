@@ -97,11 +97,7 @@ export default class MyGamesScreen extends Component {
         }
     }
 
-    async componentDidMount(){
-        this.props.navigation.addListener('beforeRemove', e => {
-            e.preventDefault();
-            this.backAction();
-        })
+    async _getMyGames(){
         const credentials = JSON.parse( await AsyncStorage.getItem('credentials'));
         axios.post(
             `${config.GAME_BUDDY_API_URL}/api/users/myGames`,
@@ -145,20 +141,30 @@ export default class MyGamesScreen extends Component {
             }
         })
     }
+
+    componentDidMount(){
+        this.props.navigation.addListener('beforeRemove', e => {
+            e.preventDefault();
+            this.backAction();
+        });
+        this.props.navigation.addListener('focus', e => {
+            this._getMyGames();
+        });
+    }
     
     _renderAccounts = ({item,index}) => {
         return (
             <TouchableOpacity 
                 onPress={()=>{this.goToAccountStatisticsPage(item)}}
                 style={{
-                    borderBottomColor:'rgba(0,0,0,.3)',
-                    borderBottomWidth:1,
+                    borderBottomColor:'rgba(255,255,255,.6)',
+                    borderBottomWidth:0.35,
                     justifyContent:'center',
                     alignItems:'center',
                     padding:7
                 }}
             >
-                <Text style={{color:'black',fontSize:18}}>
+                <Text style={{color:'rgba(255,255,255,.9)',fontSize:22}}>
                     {item.user_name}
                 </Text>
             </TouchableOpacity>
@@ -247,11 +253,19 @@ export default class MyGamesScreen extends Component {
                     }}
                     >
                     <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
+                        <ImageBackground 
+                            style={styles.modalView}
+                            imageStyle={styles.modalImage}
+                            source={
+                                require('../assets/games/lolBack.jpg')
+                            }
+                        >
                             <View style={{
-                                height:100,
-                                width:WIDTH_M/2,
-                                marginBottom:15
+                                minHeight:25,
+                                maxHeight:150,
+                                width:WIDTH_M/1.45,
+                                marginBottom:15,
+                                backgroundColor:'rgba(0,0,0,.4)'
                             }}>
                                 <FlatList
                                     data={this.state.accountsOfGame}
@@ -266,7 +280,7 @@ export default class MyGamesScreen extends Component {
                             >
                                 <Text style={styles.textStyle}>Vazgeç</Text>
                             </Pressable>
-                        </View>
+                        </ImageBackground>
                     </View>
                 </Modal>
             </View>
@@ -278,23 +292,16 @@ const styles = StyleSheet.create({
     centeredView: {
         flex: 1,
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
+    },
+    modalImage:{
+        borderRadius: 20
     },
     modalView: {
         margin: 20,
-        backgroundColor: "white",
-        borderRadius: 20,
         alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
         paddingVertical:25,
-        width:WIDTH_M/2,
+        width:WIDTH_M/1.45,
         flexDirection:'column'
     },
     button: {

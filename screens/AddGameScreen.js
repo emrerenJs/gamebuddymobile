@@ -48,7 +48,6 @@ export default class AddGameScreen extends Component {
     }
 
     connectToAccount = async () => {
-        console.log("You a heya!")
         const credentials = JSON.parse( await AsyncStorage.getItem('credentials'));
         axios.post(
             `${config.GAME_BUDDY_API_URL}/api/users/addGame`,
@@ -56,7 +55,8 @@ export default class AddGameScreen extends Component {
                 ritozUsername: this.state.textInputUsername,
                 ritozPassword: this.state.textInputPassword,
                 gamebuddyGameId:this.props.route.params.game._id,
-                gamebuddyUserId:credentials.id
+                gamebuddyUserId:credentials.id,
+                game:this.props.route.params.game.name
             },
             {
                 headers:{
@@ -114,7 +114,7 @@ export default class AddGameScreen extends Component {
     render() {
         return (
             <KeyboardAvoidingView style={styles.body}>
-                <ImageBackground source={require('../assets/games/valozalo.jpg')} style={styles.imgBackground}></ImageBackground>
+                <ImageBackground source={this.props.route.params.game.name === "Valorant" ? require('../assets/games/valozalo.jpg') : require('../assets/games/bravoz.jpg')} style={styles.imgBackground}></ImageBackground>
 
                 <View style={styles.content}>
                     <View style={styles.contentInput}>
@@ -158,16 +158,15 @@ export default class AddGameScreen extends Component {
                     message={this.state.popup.message}
                     noButtonOnClick={() => {this.changeModalVisible(false)}}
                     okButtonOnClick={() => {this.changeModalVisible(false)}}
-                    yesButtonOnClick={()=>{}}
+                    yesButtonOnClick={() => {} }
                     isModalVisible={this.state.isModalVisible}
                 />
             </KeyboardAvoidingView>
-
         )
     }
 }
+
 const styles = StyleSheet.create({
-   
     body: {
         flex: 1,
         width: '100%'
